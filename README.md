@@ -2,11 +2,8 @@
 
 > Easily set up internalization using [sequelize](https://github.com/sequelize/sequelize)
 
----
 
 ## Installation
-
-----------
 
 Install with [npm](https://npmjs.org/package/sequelize-i18n)
 
@@ -17,7 +14,6 @@ npm install sequelize-i18n --save
 
 ## Usage
 
-----------
 
 ###Model definition
 
@@ -50,7 +46,7 @@ module.exports = function(sequelize) {
 ```
 
 
-###Initialisation
+### Initialisation
 
 Init Sequelize-i18n module before importing models
 
@@ -60,14 +56,14 @@ var SequelizeI18N = require('sequelize-i18n');
 
 var languages = { 
 	list : ["EN" , "FR" , "ES"] , 
-	default_language : "FR" 
+	default : "FR" 
 };
 
 // Init Sequelize
 sequelize = new Sequelize( "db_name" , "user" , "password" );
 
 // Init i18n
-i18n = new Sequelize_i18n( sequelize, { languages: languages.list, default_language: languages.default } );
+i18n = new SequelizeI18N( sequelize, { languages: languages.list, default_language: languages.default } );
 i18n.init();
 
 // Import models in sequelize
@@ -116,21 +112,21 @@ Sequelize-i18n will set hooks into models on create, find, update and delete ope
          reference: "xxx"
      })
      .then(function (result)  {
-         // result.product_i18n = [ {name : "test" , lang : "FR" } ]
+         // result.product_i18n == [ {name : "test" , lang : "FR" } ]
      })
 
 ### Update 
 
     product_instance.update( { name : "new name" }  )
     .then( function( result ) {
-	    // result.product_i18n = [ {name : "new name" , language_id : "FR" } ]
+	    // result.product_i18n = [ {name : "french name" , language_id : "FR" } ]
     }
      
     product_instance.update( { name : "english name" } , { language_id : "EN" }  )
     .then( function( result ) {
         /*
-        result.product_i18n = [ 
-	        {name : "new name" , language_id : "FR" } ,
+        result.product_i18n == [ 
+	        {name : "french name" , language_id : "FR" } ,
 	        {name : "english name" , language_id : "EN" }
         ]
         */
@@ -141,8 +137,8 @@ Sequelize-i18n will set hooks into models on create, find, update and delete ope
     Product.find({ where : { id : 1 } })
     .then( function( result ) {
 	    /*
-        result.product_i18n = [ 
-	        {name : "new name" , language_id : "FR" } ,
+        result.product_i18n == [ 
+	        {name : "french name" , language_id : "FR" } ,
 	        {name : "english name" , language_id : "EN" }
         ]
         */
@@ -151,3 +147,19 @@ Sequelize-i18n will set hooks into models on create, find, update and delete ope
 ### Delete
 
 Deleting a Product instance will also delete i18n values
+
+
+
+### get_i18n instance method
+
+An Sequelize instance method is added to the Sequelize model in order to set virtual i18n property in the lanuage you want.
+
+    product_instance.get_i18n( "EN" );
+    // product_instance.name == "english name"
+    
+    product_instance.get_i18n( "FR" );
+    // product_instance.name == "french name"
+    
+    product_instance.get_i18n( "ES" );
+    // product_instance.name == "" if options.default_language_fallback is set to false
+    // product_instance.name == "french name" if options.default_language_fallback is set to true
