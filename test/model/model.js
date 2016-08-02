@@ -5,7 +5,7 @@ var Model = function (sequelize, DataTypes) {
             primaryKey 		: true,
             autoIncrement 	: true
         },
-        name : {
+        label : {
             type 			: DataTypes.STRING,
             i18n		 	: true,
         },

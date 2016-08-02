@@ -67,12 +67,27 @@ describe('Utils methods', function () {
 describe('Sequelize', function () {
 
     it('should be connected to database', function () {
-        sequelize = new Sequelize(options.db_name, options.user, options.password, { logging : false });
+
+        sequelize = new Sequelize(options.db_name, options.user, options.password, {
+            dialect: 'sqlite',
+            storage: 'database.test.sqlite',
+            logging: false
+        });
+
+        sequelize
+            .authenticate()
+            .then(function (err) {
+                console.log('Connection has been established successfully.');
+            })
+            .catch(function (err) {
+                console.log('Unable to connect to the database:', err);
+            });
+
     });
 
     it('should init i18n module', function () {
         var Sequelize_i18n = require('../index.js');
-        i18n = new Sequelize_i18n(sequelize, { languages: languages.list, default_language: languages.default });
+        i18n = new Sequelize_i18n(sequelize, {languages: languages.list, default_language: languages.default});
         i18n.init();
     });
 
@@ -107,7 +122,7 @@ describe('Sequelize-i18n', function () {
     });
 
     it('should synchronize database', function (done) {
-        sequelize.sync({ force: true })
+        sequelize.sync({force: true})
             .then(function () {
                 done();
             })
@@ -116,37 +131,27 @@ describe('Sequelize-i18n', function () {
             });
     });
 
-    it('should have a "model" table', function (done) {
+    it('should have a "model" and "model_i18ns" table', function (done) {
         sequelize.showAllSchemas()
             .then(function (result) {
                 result.should.not.equal(null);
                 result.length.should.equal(2);
-                result[0].should.have.property('Tables_in_' + options.db_name);
-                result[0]['Tables_in_' + options.db_name].should.equal('model');
+                result[0].should.equal('model');
+                result[1].should.equal('model_i18ns');
                 done();
             })
     });
 
-    it('should have a "model_i18ns" table', function (done) {
-        sequelize.showAllSchemas()
-            .then(function (result) {
-                result.should.not.equal(null);
-                result.length.should.equal(2);
-                result[1].should.have.property('Tables_in_' + options.db_name);
-                result[1]['Tables_in_' + options.db_name].should.equal('model_i18ns');
-                done();
-            })
-    });
 });
 
 describe('Sequelize-i18n create', function () {
     it('should return the created model with the i18n property', function (done) {
         Model.create({
-            id: 1,
-            name: 'test',
-            reference: "xxx"
-        })
-            .then(function (result)  {
+                id: 1,
+                label: 'test',
+                reference: "xxx"
+            })
+            .then(function (result) {
                 if (result) {
                     instance = result;
                     return done();
@@ -160,28 +165,47 @@ describe('Sequelize-i18n create', function () {
 
 describe('Sequelize-i18n find', function () {
     it('should return i18n values', function () {
-        instance.should.have.property('model_i18n');
-        instance['model_i18n'].length.should.equal(1);
-        instance['model_i18n'][0].should.have.property('name');
-        instance['model_i18n'][0]['name'].should.equal("test");
+        return Model.findById(1).then(function (result) {
+            result.should.have.property('model_i18n');
+            result['model_i18n'].length.should.equal(1);
+            result['model_i18n'][0].should.have.property('label');
+            result['model_i18n'][0]['label'].should.equal("test");
+        }).catch(function (e) {
+            console.log('erreur : ' + e);
+        });
     });
+
+    it('should return i18n values when filter on field i18n', function () {
+        return Model.findOne({where: {label: "test"}}).then(function (result) {
+            result.should.have.property('model_i18n');
+            result['model_i18n'].length.should.equal(1);
+            result['model_i18n'][0].should.have.property('label');
+            result['model_i18n'][0]['name'].should.equal("test");
+        }).catch(function (e) {
+            console.log('erreur : ' + e);
+        });
+    });
+
+//process.exit();
+
 });
+
 
 describe('Sequelize-i18n update', function () {
     it('should set the name property to test2 for default language', function (done) {
-        instance.update( { name: "test-fr-update" } , { language_id : "FR" } ).then( function ( res ) {
-            instance.get_i18n("FR").name.should.equal('test-fr-update');
+        instance.update({label: "test-fr-update"}, {language_id: "FR"}).then(function (res) {
+            instance.get_i18n("FR").label.should.equal('test-fr-update');
             done();
         })
     });
 
     it('should set the name property to test-en-update for EN', function (done) {
-        instance.update( { name: "test-en-update" }, { language_id : "EN" } ).then( function( res ) {
-            Model.find( { where: { id: 1 } } )
-            .then(function (_result) {
-                _result.get_i18n("EN").name.should.equal('test-en-update');
-                done();
-            })
+        instance.update({label: "test-en-update"}, {language_id: "EN"}).then(function (res) {
+            Model.find({where: {id: 1}})
+                .then(function (_result) {
+                    _result.get_i18n("EN").label.should.equal('test-en-update');
+                    done();
+                })
         })
     });
 });
@@ -190,9 +214,9 @@ describe('Sequelize-i18n update', function () {
 describe('Sequelize-i18n delete', function () {
     it('should delete current instance and its i18n values', function () {
         instance.destroy()
-        .then( function( ) {
-            done();
-        });
-        
+            .then(function () {
+                done();
+            });
+
     });
 });
