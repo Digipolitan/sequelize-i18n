@@ -180,7 +180,7 @@ describe('Sequelize-i18n find', function () {
             result.should.have.property('model_i18n');
             result['model_i18n'].length.should.equal(1);
             result['model_i18n'][0].should.have.property('label');
-            result['model_i18n'][0]['name'].should.equal("test");
+            result['model_i18n'][0]['label'].should.equal("test");
         }).catch(function (e) {
             console.log('erreur : ' + e);
         });
