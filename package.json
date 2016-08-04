@@ -1,5 +1,5 @@
 {
-  "name": "@mapleinside/sequelize-i18n",
+  "name": "sequelize-i18n",
   "version": "1.0.0",
   "description": "Easily set up database internalization using sequelize",
   "main": "index.js",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Digipolitan/sequelize-i18n.git"
+    "url": "git+https://github.com/mapleinside/sequelize-i18n.git"
   },
   "keywords": [
     "i18n",
@@ -21,9 +21,9 @@
   "author": "camy.adrien@digipolitan.com",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Digipolitan/sequelize-i18n/issues"
+    "url": "https://github.com/mapleinside/sequelize-i18n/issues"
   },
-  "homepage": "https://github.com/Digipolitan/sequelize-i18n#readme",
+  "homepage": "https://github.com/mapleinside/sequelize-i18n#readme",
   "dependencies": {
     "lodash": "^4.12.0",
     "mysql": "^2.10.2",
@@ -32,7 +32,6 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "mocha": "^2.4.5",
-    "sequelize-cli": "^2.4.0",
     "sqlite3": "^3.1.4"
   }
 }
